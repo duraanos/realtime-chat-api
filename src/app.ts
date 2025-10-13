@@ -1,6 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
-import connectDb from './config/db';
+import connectDb from './shared/config/db';
 
 dotenv.config();
 
