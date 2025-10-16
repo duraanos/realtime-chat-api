@@ -1,8 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import connectDb from './shared/config/db';
 
 dotenv.config();
+
+import connectDb from './shared/config/db';
+import authRoutes from '../src/features/auth/routes/auth.routes';
 
 const app = express();
 connectDb();
@@ -18,6 +20,8 @@ app.get('/health', (req: any, res: any) => {
     timeStamp: new Date().toISOString(),
   });
 });
+
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
