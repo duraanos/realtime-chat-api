@@ -25,23 +25,24 @@ export const authMiddleware = async (
         message: 'Access denied. No token provided',
       });
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
 
-    if (!jwtSecret || typeof jwtSecret !== 'string')
+    if (!jwtSecret || typeof jwtSecret !== 'string') {
       return res.status(500).json({
         success: false,
-        message: 'JWT secret is not configured on the server',
+        message: 'JWT access secret is not configured on the server',
       });
+    }
 
     const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
-    if (!decoded)
+    if (!decoded || typeof decoded !== 'object' || !('sub' in decoded))
       return res.status(403).json({
         success: false,
         message: 'Invalid token payload',
       });
 
-    (req as any).user = { id: decoded };
+    (req as any).user = { id: (decoded as any).sub };
     next();
   } catch (err: any) {
     console.error('Error:', err.message);
