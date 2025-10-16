@@ -1,15 +1,15 @@
-import { NewUser } from '../../user/models/user.model';
+import { UserModel } from '../../user/models/user.model';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateAccessToken } from '../utils/jwt';
 
 export const authService = {
   async register(userName: string, email: string, password: string) {
-    const existing = await NewUser.findOne({ email });
+    const existing = await UserModel.findOne({ email });
 
     if (existing) throw new Error('User already exists');
 
     const hashed = await hashPassword(password);
-    const newUser = await NewUser.create({
+    const newUser = await UserModel.create({
       username: userName,
       email,
       password: hashed,
@@ -19,7 +19,7 @@ export const authService = {
   },
 
   async login(email: string, password: string) {
-    const user = await NewUser.findOne({ email });
+    const user = await UserModel.findOne({ email });
     if (!user) throw new Error('User not found');
 
     const isMatch = await comparePassword(password, user.password);
