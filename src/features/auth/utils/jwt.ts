@@ -5,15 +5,15 @@ import { UserPayload } from '../types/auth';
 const refreshStore = new Map();
 
 export const generateAccessToken = (user: UserPayload) => {
-  const jwtAccessSecret = process.env.JWT_ACCES_SECRET;
+  const jwtAccessSecret = process.env.JWT_ACCESS_SECRET;
   const options = { expiresIn: process.env.JWT_ACCESS_TTL };
 
-  const accesToken = jwt.sign(
+  const accessToken = jwt.sign(
     { sub: user.id, typ: 'access' },
     jwtAccessSecret,
     options
   );
-  return accesToken;
+  return accessToken;
 };
 
 export const generateRefreshToken = (user: UserPayload, jti: string) => {
