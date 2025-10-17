@@ -9,6 +9,7 @@ export type User = Document & {
   password: string;
   role: UserRole;
   metadata?: Record<string, any>;
+  refreshToken?: string[];
   createdat?: Date;
   updatedat?: Date;
 };
