@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Object,
       default: {},
     },
+    refreshToken: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
