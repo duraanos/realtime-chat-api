@@ -18,11 +18,17 @@ export const authController = {
 
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
+      const cookies = req.cookies;
       const { email, password } = req.body;
 
-      const result = await authService.login(email, password);
+      if (!email || !password)
+        res.status(400).json({ error: 'Username and password required' });
+
+      const result = await authService.login(res, email, password, cookies);
       res.status(200).json(result);
-    } catch (err: unknown) {
+    } catch (err: any) {
+      const statusCode = err.message.split(':')[0];
+      if (statusCode === '401') res.status(401).send();
       res
         .status(500)
         .json({ error: err instanceof Error ? err.message : String(err) });
@@ -48,8 +54,9 @@ export const authController = {
       const statusCode = err.message.split(':')[0];
       if (statusCode === '403') res.status(403);
 
-      console.error('RefreshToken:', err);
-      res.sendStatus(500);
+      res.status(500).json({
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   },
 };
