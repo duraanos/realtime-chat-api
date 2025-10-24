@@ -1,5 +1,7 @@
+import { Response } from 'express';
 import { UserModel } from '../../user/models/user.model';
 import { hashPassword, comparePassword } from '../utils/password';
+import { clearRefreshCookie, setRefreshCookie } from '../utils/cookie';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -23,7 +25,7 @@ export const authService = {
     return { user: newUser };
   },
 
-  async login(email: string, password: string) {
+  async login(res: Response, email: string, password: string, cookies: any) {
     const user = await UserModel.findOne({ email });
     if (!user) throw new Error('User not found');
 
@@ -31,7 +33,26 @@ export const authService = {
     if (!isMatch) throw new Error('Incorrect Password');
 
     const payload = { id: user._id.toString(), typ: 'access' };
-    return { user: user, token: generateAccessToken(payload) };
+
+    const accessToken = generateAccessToken(payload);
+    const newRefreshToken = generateRefreshToken(payload, 'jti');
+
+    let newRefreshTokenArray = !cookies?.jwt
+      ? user.refreshToken
+      : user.refreshToken?.filter(rt => rt !== cookies.jwt);
+
+    if (cookies?.jwt) {
+      const refreshToken = cookies.jwt;
+      const foundToken = await UserModel.findOne({ refreshToken }).exec();
+
+      if (!foundToken) newRefreshTokenArray = [];
+      clearRefreshCookie(res);
+    }
+
+    user.refreshToken = [...(newRefreshTokenArray || []), newRefreshToken];
+    setRefreshCookie(res, newRefreshToken);
+
+    return { accessToken };
   },
 
   async handleRefreshToken(refreshToken: string) {
@@ -77,7 +98,10 @@ export const authService = {
     if (user.username !== decoded.username)
       throw new Error('403: Forbidden: Token User Mismatch');
 
-    const accessPayload = { id: decoded.sub || user._id.toString(), typ: 'access' };
+    const accessPayload = {
+      id: decoded.sub || user._id.toString(),
+      typ: 'access',
+    };
     const accessToken = generateAccessToken(accessPayload);
 
     const jti = uuidv4();
