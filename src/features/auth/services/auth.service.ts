@@ -25,14 +25,22 @@ export const authService = {
     return { user: newUser };
   },
 
-  async login(res: Response, email: string, password: string, cookies: any) {
+  async handleLogin(
+    res: Response,
+    email: string,
+    password: string,
+    cookies: any
+  ) {
     const user = await UserModel.findOne({ email });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('Unauthorized');
 
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) throw new Error('Incorrect Password');
 
-    const payload = { id: user._id.toString(), typ: 'access' };
+    const payload = {
+      id: user._id.toString(),
+      typ: 'access',
+    };
 
     const accessToken = generateAccessToken(payload);
     const newRefreshToken = generateRefreshToken(payload, 'jti');
@@ -45,9 +53,12 @@ export const authService = {
       const refreshToken = cookies.jwt;
       const foundToken = await UserModel.findOne({ refreshToken }).exec();
 
-      if (!foundToken) newRefreshTokenArray = [];
-      clearRefreshCookie(res);
+      if (!foundToken) {
+        console.log('Attempted refresh token reuse at login');
+        newRefreshTokenArray = [];
+      }
     }
+    clearRefreshCookie(res);
 
     user.refreshToken = [...(newRefreshTokenArray || []), newRefreshToken];
     setRefreshCookie(res, newRefreshToken);
@@ -65,18 +76,20 @@ export const authService = {
       let decoded: any;
 
       try {
-        decoded = verifyRefreshToken(refreshToken);
+        // verifyRefreshToken returns a Promise, await the resolved payload
+        decoded = await verifyRefreshToken(refreshToken);
       } catch (err: unknown) {
         // invalid or expired token - abort early
         throw new Error('403: Forbidden - Invalid/Expired Token');
       }
 
-      if (!decoded || !decoded.username) {
+      // token payload uses `sub` (user id) as subject
+      if (!decoded || !decoded.sub) {
         throw new Error('403: Forbidden - Invalid/Expired Token');
       }
 
       const hackedUser = await UserModel.findOne({
-        username: decoded.username,
+        _id: decoded.sub,
       }).exec();
 
       if (hackedUser) {
@@ -89,13 +102,16 @@ export const authService = {
     let decoded: any;
 
     try {
-      decoded = verifyRefreshToken(refreshToken);
+      // await the verification Promise to get the decoded payload
+      decoded = await verifyRefreshToken(refreshToken);
     } catch (err: unknown) {
-      user.refreshToken = newRefreshTokenArray;
+      user.refreshToken = [...(newRefreshTokenArray || [])];
       await user.save();
       throw new Error('403: Forbidden - Expired Token');
     }
-    if (user.username !== decoded.username)
+
+    // token uses `sub` (user id); compare with user's _id
+    if (user._id.toString() !== decoded.sub)
       throw new Error('403: Forbidden: Token User Mismatch');
 
     const accessPayload = {
