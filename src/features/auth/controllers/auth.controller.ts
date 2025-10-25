@@ -19,12 +19,13 @@ export const authController = {
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
       const cookies = req.cookies;
+      console.log(`cookie available at login: ${JSON.stringify(cookies)}`);
       const { email, password } = req.body;
 
       if (!email || !password)
         res.status(400).json({ error: 'Username and password required' });
 
-      const result = await authService.login(res, email, password, cookies);
+      const result = await authService.handleLogin(res, email, password, cookies);
       res.status(200).json(result);
     } catch (err: any) {
       const statusCode = err.message.split(':')[0];
