@@ -19,7 +19,7 @@ export const generateRefreshToken = (user: UserPayload, jti: string) => {
   const options = { expiresIn: process.env.JWT_REFRESH_TTL };
 
   const refreshToken = jwt.sign(
-    { sub: user.id, jti, type: 'refresh' },
+    { sub: user.id, jti, type: 'refresh'},
     jwtRefreshSecret,
     options
   );
