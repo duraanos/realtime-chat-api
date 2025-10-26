@@ -25,7 +25,12 @@ export const authController = {
       if (!email || !password)
         res.status(400).json({ error: 'Username and password required' });
 
-      const result = await authService.handleLogin(res, email, password, cookies);
+      const result = await authService.handleLogin(
+        res,
+        email,
+        password,
+        cookies
+      );
       res.status(200).json(result);
     } catch (err: any) {
       const statusCode = err.message.split(':')[0];
@@ -34,6 +39,18 @@ export const authController = {
         .status(500)
         .json({ error: err instanceof Error ? err.message : String(err) });
     }
+  },
+
+  async handleLogout(req: Request, res: Response): Promise<void> {
+    const cookies = req.cookies;
+    if (!cookies.jwt) res.status(204).json({ error: 'No content' });
+
+    const refreshToken = cookies.jwt;
+    const result = await authService.logout(res, refreshToken);
+
+    clearRefreshCookie(res);
+
+    res.status(200).json({ message: 'Log out successfully' });
   },
 
   async handleRefreshToken(req: Request, res: Response): Promise<void> {
