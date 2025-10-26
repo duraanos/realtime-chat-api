@@ -66,6 +66,19 @@ export const authService = {
     return { accessToken };
   },
 
+  async logout(res: Response, refreshToken: string) {
+    const foundUser = await UserModel.findOne({ refreshToken }).exec();
+    if (!foundUser) {
+      clearRefreshCookie(res);
+      return res.sendStatus(204);
+    }
+
+    foundUser.refreshToken = foundUser.refreshToken?.filter(
+      rt => rt !== refreshToken
+    );
+    await foundUser.save();
+  },
+
   async handleRefreshToken(refreshToken: string) {
     const user = await UserModel.findOne({ refreshToken }).exec();
     const newRefreshTokenArray = user?.refreshToken?.filter(
