@@ -142,8 +142,8 @@ export const socketController = {
     };
   },
 
-  handleSocketConnection(io: IOServer) {
-    return async (socket: Socket): Promise<void> => {
+  handleSocketConnection(io: IOServer, socket: Socket) {
+    return async (): Promise<void> => {
       console.log(`New user connected ${socket.id}`);
 
       const connectedUserId =
