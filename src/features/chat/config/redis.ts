@@ -16,8 +16,8 @@ redisClient.on('connect', () => {
   console.log('Redis connected successfully');
 });
 
-redisClient.on('error', () => {
-  console.error('MongoDB connection failed');
+redisClient.on('error', (err: Error) => {
+  console.error('Redis connection error:', err.message);
 });
 
 export default redisClient;
