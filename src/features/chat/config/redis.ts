@@ -1,7 +1,4 @@
 import Redis from 'ioredis';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const redisPort: number | undefined = process.env.REDIS_PORT
   ? parseInt(process.env.REDIS_PORT, 10)
