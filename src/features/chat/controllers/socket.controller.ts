@@ -134,11 +134,26 @@ export const socketController = {
     };
   },
 
-  handleDisconnect(socket: Socket) {
+  handleDisconnect(io: IOServer, socket: Socket) {
     return async (connectedUserId: string): Promise<void> => {
       console.log(`user has logged out: ${socket.id}`);
       await redisService.removeUserSocket(connectedUserId);
       console.log(`User ${connectedUserId} removed from Redis`);
+
+      await redisService.removeUserToOnlineSet(connectedUserId);
+      console.log(
+        `User ${connectedUserId} went offline and was removed from Redis`
+      );
+
+      io.emit('userOffline', connectedUserId);
+    };
+  },
+
+  handleOnlineUsers(connectedUserId: string) {
+    return async (callback: (users: string[]) => void): Promise<void> => {
+      const users = await redisService.getOnlineUsers();
+      if (callback)
+        callback(users.filter(userId => userId !== connectedUserId));
     };
   },
 
@@ -153,6 +168,13 @@ export const socketController = {
       await redisService.setUserSocket(connectedUserId, socket.id);
       console.log(`User ${connectedUserId} saved to Redis`);
 
+      await redisService.addUserToOnlineSet(connectedUserId);
+      console.log(
+        `User ${connectedUserId} is online and has been recorded in Redis`
+      );
+
+      io.emit('userOnline', connectedUserId);
+
       const initialRoom = 'general';
       socket.join(initialRoom);
 
@@ -161,11 +183,12 @@ export const socketController = {
       socket.on('joinRoom', this.handleJoinRoom(socket));
       socket.on('sendMessage', this.handleSendMessage(io, socket));
       socket.on('yell', this.handleGlobalBroadcast(io));
-      socket.on('disconnect', this.handleDisconnect(socket));
+      socket.on('disconnect', this.handleDisconnect(io, socket));
       socket.on(
         'sendPrivateMessage',
         this.handleSendPrivateMessage(io, socket)
       );
+      socket.on('getOnlineUsers', this.handleOnlineUsers(connectedUserId));
     };
   },
 };
