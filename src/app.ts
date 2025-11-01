@@ -33,7 +33,9 @@ const io = new Server(server, {
   },
 });
 
-io.on('connection', socketController.handleSocketConnection(io));
+io.on('connection', (socket) => {
+  socketController.handleSocketConnection(io, socket);
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
