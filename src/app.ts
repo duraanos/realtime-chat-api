@@ -7,6 +7,7 @@ import { Server } from 'socket.io';
 dotenv.config();
 
 import connectDb from './shared/config/db';
+import userRoutes from '../src/features/user/routes/user.routes';
 import authRoutes from '../src/features/auth/routes/auth.routes';
 import messageRoutes from './features/chat/routes/message.routes';
 import { socketController } from './features/chat/controllers/socket.controller';
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
 
@@ -33,7 +35,7 @@ const io = new Server(server, {
   },
 });
 
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   socketController.handleSocketConnection(io, socket);
 });
 
