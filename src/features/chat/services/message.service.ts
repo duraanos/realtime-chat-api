@@ -6,7 +6,11 @@ export const messageService = {
     messageData: Omit<Message, '_id' | 'timestamp'>
   ): Promise<MessageDocument> {
     try {
-      const message = new MessageModel(messageData);
+      const message = new MessageModel({
+        sender: messageData.sender,
+        room: messageData.room,
+        content: messageData.content,
+      });
       await message.save();
 
       return message;
