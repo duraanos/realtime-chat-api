@@ -3,8 +3,8 @@ import { Server } from 'socket.io';
 
 export type Message = {
   _id: string;
-  user: string;
-  text: string;
+  sender: string;
+  content: string;
   room: string;
   timestamp?: string;
 };
