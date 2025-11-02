@@ -2,16 +2,18 @@ import mongoose from 'mongoose';
 import { MessageDocument } from '../types/custom';
 
 const MessageSchema = new mongoose.Schema({
-  user: {
-    type: String,
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
   },
-  text: {
+  content: {
     type: String,
     required: true,
   },
   room: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room',
     default: 'general',
   },
   timestamp: {
