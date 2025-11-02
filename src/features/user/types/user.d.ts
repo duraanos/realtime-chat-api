@@ -1,6 +1,6 @@
 import { Document, Types } from 'mongoose';
 
-type UserRole = 'user' | 'admin';
+type UserRole = 'user' | 'moderator' | 'admin';
 
 export type User = Document & {
   _id: Types.ObjectId;
