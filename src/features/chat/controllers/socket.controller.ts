@@ -49,7 +49,15 @@ export const socketController = {
       data: SendMessagePayload,
       callback: Callback
     ): Promise<void> => {
-      const { sender, content, room } = data;
+      const {
+        sender,
+        content,
+        room,
+        messageType,
+        fileUrl,
+        fileName,
+        fileMimeType,
+      } = data;
 
       if (!room || !sender || !content) {
         callback?.({
@@ -65,6 +73,10 @@ export const socketController = {
           sender,
           content,
           room,
+          messageType,
+          fileUrl,
+          fileName,
+          fileMimeType,
         });
         io.to(room).emit('receiveMessage', savedMessages.toObject());
         callback?.({ status: 'ok' });
