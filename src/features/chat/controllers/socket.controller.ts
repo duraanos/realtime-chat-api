@@ -5,7 +5,7 @@ import { getPrivateRoomName } from '../utils/socket.util';
 import {
   Message,
   PrivateMessage,
-  SendMessagePaylod,
+  SendMessagePayload,
   SendPrivateMessagePaylod,
   IOServer,
   Callback,
@@ -37,8 +37,8 @@ export const socketController = {
       }
 
       socket.to(roomName).emit('receiveMessage', {
-        user: 'Server',
-        text: `${socket.id} joined the room: ${roomName}`,
+        sender: 'Server',
+        content: `${socket.id} joined the room: ${roomName}`,
         room: roomName,
       } as Omit<Message, '_id' | 'timestamp'>);
     };
@@ -46,12 +46,12 @@ export const socketController = {
 
   handleSendMessage(io: IOServer, socket: Socket) {
     return async (
-      data: SendMessagePaylod,
+      data: SendMessagePayload,
       callback: Callback
     ): Promise<void> => {
-      const { user, text, room } = data;
+      const { sender, content, room } = data;
 
-      if (!room || !user || !text) {
+      if (!room || !sender || !content) {
         callback?.({
           status: 'error',
           room: room ?? '',
@@ -62,8 +62,8 @@ export const socketController = {
 
       try {
         const savedMessages = await messageService.saveMessage({
-          user,
-          text,
+          sender,
+          content,
           room,
         });
         io.to(room).emit('receiveMessage', savedMessages.toObject());
@@ -127,8 +127,8 @@ export const socketController = {
   handleGlobalBroadcast(io: IOServer) {
     return (message: string): void => {
       io.emit('receiveMessage', {
-        user: 'Global Announcement',
-        text: message,
+        sender: 'Global Announcement',
+        content: message,
         room: 'all',
       } as Omit<Message, '_id' | 'timestamp'>);
     };
