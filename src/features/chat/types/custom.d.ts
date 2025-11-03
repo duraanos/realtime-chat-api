@@ -6,6 +6,10 @@ export type Message = {
   sender: string;
   content: string;
   room: string;
+  messageType: 'text' | 'file';
+  fileUrl?: string;
+  fileName?: string;
+  fileMimeType?: string;
   timestamp?: string;
 };
 
@@ -22,6 +26,11 @@ export type SendMessagePayload = {
   sender: string;
   content: string;
   room: string;
+  messageType: 'text' | 'file';
+  fileUrl?: string;
+  fileName?: string;
+  fileMimeType?: string;
+  timestamp?: string;
 };
 
 export type SendPrivateMessagePaylod = {
