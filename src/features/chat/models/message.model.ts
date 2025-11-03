@@ -16,6 +16,14 @@ const MessageSchema = new mongoose.Schema({
     ref: 'Room',
     default: 'general',
   },
+  messageType: {
+    type: String,
+    enum: ['text', 'file'],
+    default: 'text',
+  },
+  fileUrl: { type: String },
+  fileName: { type: String },
+  fileMimeType: { type: String },
   timestamp: {
     type: Date,
     default: Date.now,
