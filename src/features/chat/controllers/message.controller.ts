@@ -4,6 +4,7 @@ import { messageService } from '../services/message.service';
 export const messageController = {
   async handleRoomHistory(req: Request, res: Response): Promise<void> {
     const roomName: string = req.params.roomName;
+    const skip = parseInt(req.query.skip as string) || 0;
     const limit: number = req.params.limit
       ? parseInt(req.query.limit as string, 10)
       : 50;
@@ -11,7 +12,11 @@ export const messageController = {
     if (!roomName) res.status(400).json({ error: 'Room name is required' });
 
     try {
-      const messages = await messageService.getRoomMessages(roomName, limit);
+      const messages = await messageService.getRoomMessages(
+        roomName,
+        skip,
+        limit
+      );
 
       res.status(200).json({
         room: roomName,
