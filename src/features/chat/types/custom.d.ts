@@ -18,9 +18,9 @@ export type PrivateMessage = {
 
 export type MessageDocument = mongoose.Document & Omit<Message, '_id'>;
 
-export type SendMessagePaylod = {
-  user: string;
-  text: string;
+export type SendMessagePayload = {
+  sender: string;
+  content: string;
   room: string;
 };
 
