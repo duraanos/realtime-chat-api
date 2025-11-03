@@ -20,11 +20,17 @@ export const messageService = {
     }
   },
 
-  async getRoomMessages(room: string, limit: number = 50): Promise<Message[]> {
+  async getRoomMessages(
+    room: string,
+    limit: number = 50,
+    skip: number = 0
+  ): Promise<Message[]> {
     try {
       const messages = await MessageModel.find({ room })
         .sort({ timeStamp: -1 })
+        .skip(skip)
         .limit(limit)
+        .populate('sender', 'username')
         .lean<Message[]>();
 
       return messages.reverse();
