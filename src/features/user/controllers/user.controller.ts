@@ -51,4 +51,23 @@ export const userController = {
         .json({ error: err instanceof Error ? err.message : String(err) });
     }
   },
+
+  async handleRegisterFCMToken(req: Request, res: Response): Promise<void> {
+    const userId = (req as any).user.id;
+    const { token } = req.body;
+
+    if (!token) res.status(400).json({ message: 'FCM token is requried' });
+
+    try {
+      await userService.addFCMTokenToUser(userId, token);
+
+      res
+        .status(200)
+        .json({ message: 'FCM token has been successfully registered' });
+    } catch (err: any) {
+      res
+        .status(500)
+        .json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  },
 };
