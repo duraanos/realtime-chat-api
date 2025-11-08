@@ -29,5 +29,11 @@ router.delete(
   authorizeRoles('admin'),
   userController.handleDeleteUser
 );
+router.post(
+  '/fcm-token',
+  authMiddleware,
+  authorizeRoles('user'),
+  userController.handleRegisterFCMToken
+);
 
 export default router;
