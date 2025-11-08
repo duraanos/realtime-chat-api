@@ -14,3 +14,4 @@ if (!admin.apps.length) {
 }
 
 export const fcmAdmin = admin;
+export const messaging = admin.messaging();
