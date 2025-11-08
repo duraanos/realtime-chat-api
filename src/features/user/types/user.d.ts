@@ -10,6 +10,7 @@ export type User = Document & {
   role: UserRole;
   metadata?: Record<string, any>;
   refreshToken?: string[];
+  fcmTokens: string[];
   createdat?: Date;
   updatedat?: Date;
 };
