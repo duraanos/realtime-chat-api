@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io';
 import { messageService } from '../services/message.service';
 import { redisService } from '../services/redis.service';
+import { encryptionService } from '../services/encryption.service';
 import { getPrivateRoomName } from '../utils/socket.util';
 import {
   Message,
@@ -69,16 +70,23 @@ export const socketController = {
       }
 
       try {
+        const { iv, encryptedData } = encryptionService.encrypt(content);
+
         const savedMessages = await messageService.saveMessage({
           sender,
-          content,
+          content: encryptedData,
           room,
+          iv,
           messageType,
           fileUrl,
           fileName,
           fileMimeType,
         });
-        io.to(room).emit('receiveMessage', savedMessages.toObject());
+        io.to(room).emit('receiveMessage', {
+          ...savedMessages.toObject(),
+          content: encryptedData,
+          iv: iv,
+        });
         callback?.({ status: 'ok' });
       } catch (err: any) {
         console.error('An error occured while sending the message');
