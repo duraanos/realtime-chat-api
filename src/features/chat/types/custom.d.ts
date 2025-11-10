@@ -5,6 +5,7 @@ export type Message = {
   _id: string;
   sender: string;
   content: string;
+  iv: string;
   room: string;
   messageType: 'text' | 'file';
   fileUrl?: string;
@@ -25,6 +26,7 @@ export type MessageDocument = mongoose.Document & Omit<Message, '_id'>;
 export type SendMessagePayload = {
   sender: string;
   content: string;
+  iv: string
   room: string;
   messageType: 'text' | 'file';
   fileUrl?: string;
