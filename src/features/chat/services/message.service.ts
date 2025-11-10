@@ -1,15 +1,21 @@
 import { MessageModel } from '../models/message.model';
 import { Message, MessageDocument } from '../types/custom';
+import { encryptionService } from './encryption.service';
 
 export const messageService = {
   async saveMessage(
     messageData: Omit<Message, '_id' | 'timestamp'>
   ): Promise<MessageDocument> {
+    const { content } = messageData;
+
+    const { iv, encryptedData } = encryptionService.encrypt(content);
+
     try {
       const message = new MessageModel({
         sender: messageData.sender,
         room: messageData.room,
-        content: messageData.content,
+        content: encryptedData,
+        iv: iv,
       });
       await message.save();
 
