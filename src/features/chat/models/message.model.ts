@@ -11,6 +11,11 @@ const MessageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  iv: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   room: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
